@@ -244,171 +244,147 @@
 </div>
 
 <script>
-    // THAY API KEY CỦA BẠN VÀO ĐÂY
-    const GOOGLE_API_KEY = "AIzaSyA_aer1hVXkMPWNYhPnEC1TmWjzUBf5ue0"; 
+// 1. Ngân hàng câu hỏi mẫu (Giữ nguyên của bạn)
+const sentenceBank = [
+    { zh: "你好", py: "Nǐ hǎo", vi: "Xin chào" },
+    { zh: "谢谢你", py: "Xièxie nǐ", vi: "Cảm ơn bạn" },
+    { zh: "不客气", py: "Bú kèqì", vi: "Không có gì/Đừng khách sáo" },
+    { zh: "我爱你", py: "Wǒ ài nǐ", vi: "Tôi yêu bạn" },
+    { zh: "今天天气很好", py: "Jīntiān tiānqì hěn hǎo", vi: "Hôm nay thời tiết rất đẹp" },
+    { zh: "你想吃什么？", py: "Nǐ xiǎng chī shénme?", vi: "Bạn muốn ăn gì?" },
+    { zh: "汉语不太难", py: "Hànyǔ bú tài nán", vi: "Tiếng Trung không khó lắm" }
+];
 
-    // Ngân hàng câu hỏi mẫu (Bạn có thể thêm tùy thích)
-    const sentenceBank = [
-        { zh: "你好", py: "Nǐ hǎo", vi: "Xin chào" },
-        { zh: "谢谢你", py: "Xièxie nǐ", vi: "Cảm ơn bạn" },
-        { zh: "不客气", py: "Bú kèqì", vi: "Không có gì/Đừng khách sáo" },
-        { zh: "我爱你", py: "Wǒ ài nǐ", vi: "Tôi yêu bạn" },
-        { zh: "今天天气很好", py: "Jīntiān tiānqì hěn hǎo", vi: "Hôm nay thời tiết rất đẹp" },
-        { zh: "你想吃什么？", py: "Nǐ xiǎng chī shénme?", vi: "Bạn muốn ăn gì?" },
-        { zh: "汉语不太难", py: "Hànyǔ bú tài nán", vi: "Tiếng Trung không khó lắm" }
-    ];
+let currentSentence = sentenceBank[0];
+let recognition;
+let isRecording = false;
 
-    let currentSentence = sentenceBank[0];
-    let mediaRecorder;
-    let audioChunks = [];
-    let audioContext;
+// Lấy các phần tử giao diện từ HTML của bạn
+const recordBtn = document.getElementById('recordBtn');
+const micIcon = document.getElementById('micIcon');
+const statusDiv = document.getElementById('status');
+const resultBox = document.getElementById('resultBox');
+const recognizedText = document.getElementById('recognizedText');
+const scorePercent = document.getElementById('scorePercent');
+const scoreBorder = document.getElementById('scoreBorder');
+const feedbackMsg = document.getElementById('feedbackMsg');
 
-    const recordBtn = document.getElementById('recordBtn');
-    const micIcon = document.getElementById('micIcon');
-    const statusDiv = document.getElementById('status');
-    const resultBox = document.getElementById('resultBox');
-    const recognizedText = document.getElementById('recognizedText');
-    const scorePercent = document.getElementById('scorePercent');
-    const scoreBorder = document.getElementById('scoreBorder');
-    const feedbackMsg = document.getElementById('feedbackMsg');
+// 2. Cấu hình Web Speech API nhận diện giọng nói MIỄN PHÍ của trình duyệt
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN'; // Nhận diện tiếng Trung chuẩn (Mandarin)
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
-    // 1. Đổi câu ngẫu nhiên
-    document.getElementById('nextBtn').addEventListener('click', () => {
-        let nextSentence;
-        do {
-            nextSentence = sentenceBank[Math.floor(Math.random() * sentenceBank.length)];
-        } while (nextSentence.zh === currentSentence.zh && sentenceBank.length > 1);
-        
-        currentSentence = nextSentence;
-        document.getElementById('targetText').innerText = currentSentence.zh;
-        document.getElementById('targetPinyin').innerText = currentSentence.py;
-        document.getElementById('targetTranslation').innerText = currentSentence.vi;
-        
-        // Ẩn kết quả cũ
-        resultBox.style.display = "none";
-        statusDiv.innerText = "Nhấn micro để bắt đầu nói";
-    });
-
-    // 2. Phát âm mẫu bằng Web Speech API của trình duyệt
-    document.getElementById('speakBtn').addEventListener('click', () => {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(currentSentence.zh);
-            utterance.lang = 'zh-CN'; // Chuyển giọng chuẩn Trung Quốc
-            utterance.rate = 0.8;    // Nói chậm một chút để dễ nghe mẫu
-            window.speechSynthesis.speak(utterance);
-        } else {
-            alert("Trình duyệt của bạn không hỗ trợ phát âm mẫu.");
-        }
-    });
-
-    // 3. Logic xử lý Ghi âm
-    recordBtn.addEventListener('click', async () => {
-        if (mediaRecorder && mediaRecorder.state === "recording") {
-            mediaRecorder.stop();
-            return;
-        }
-
-        audioChunks = [];
+    recognition.onstart = () => {
         statusDiv.innerText = "Đang nghe... Nói ngay đi!";
         micIcon.className = "fas fa-stop";
         recordBtn.classList.add('recording');
         resultBox.style.display = "none";
+        isRecording = true;
+    };
 
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-            mediaRecorder = new MediaRecorder(stream);
-            
-            mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
-            mediaRecorder.onstop = async () => {
-                micIcon.className = "fas fa-microphone";
-                recordBtn.classList.remove('recording');
-                statusDiv.innerText = "Đang mã hóa âm thanh...";
-
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                const reader = new FileReader();
-                reader.readAsDataURL(audioBlob);
-                reader.onloadend = async () => {
-                    const base64Audio = reader.result.split(',')[1];
-                    sendToGoogleSpeech(base64Audio);
-                };
-            };
-            mediaRecorder.start();
-        } catch (err) {
-            statusDiv.innerText = "Không thể truy cập Microphone!";
-            console.error(err);
-        }
-    });
-
-    // 4. Gửi dữ liệu tới Google Cloud Speech-to-Text
-    async function sendToGoogleSpeech(base64Audio) {
-        statusDiv.innerText = "Đang phân tích giọng nói...";
-        const url = `https://speech.googleapis.com/v1/speech:recognize?key=${GOOGLE_API_KEY}`;
-        const requestBody = {
-            config: {
-                encoding: "WEBM_OPUS",
-                sampleRateHertz: 16000,
-                languageCode: "cmn-Hans-CN"
-            },
-            audio: { content: base64Audio }
-        };
-
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                body: JSON.stringify(requestBody),
-                headers: { "Content-Type": "application/json" }
-            });
-            const data = await response.json();
-            
-            if (data.results && data.results.length > 0) {
-                const transcript = data.results[0].alternatives[0].transcript.trim();
-                calculateScore(transcript);
-            } else {
-                statusDiv.innerText = "Thử lại";
-                alert("Máy không nghe rõ bạn nói gì, bạn hãy thử lại nhé!");
-            }
-        } catch (error) {
-            console.error(error);
-            statusDiv.innerText = "Lỗi kết nối API.";
-        }
-    }
-
-    // 5. Chấm điểm % và Phản hồi giao diện trực quan
-    function calculateScore(transcript) {
-        statusDiv.innerText = "Hoàn thành!";
-        resultBox.style.display = "block";
-        recognizedText.innerText = transcript;
-
-        // Xử lý chuỗi loại bỏ dấu câu để so sánh chính xác hơn
-        const cleanTarget = currentSentence.zh.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！]/g,"");
-        const cleanTranscript = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！]/g,"");
-
-        let matchCount = 0;
-        for (let char of cleanTarget) {
-            if (cleanTranscript.includes(char)) {
-                matchCount++;
-            }
-        }
-
-        const score = Math.round((matchCount / cleanTarget.length) * 100);
-        scorePercent.innerText = `${score}%`;
-        
-        // Phản hồi dựa trên mức độ % chính xác
-        if(score >= 80) {
-            scoreBorder.style.borderColor = "var(--success)";
-            feedbackMsg.innerText = "Tuyệt vời! Phát âm rất chuẩn.";
-            feedbackMsg.style.color = "var(--success)";
-        } else if(score >= 50) {
-            scoreBorder.style.borderColor = "var(--warning)";
-            feedbackMsg.innerText = "Khá tốt! Cần chú ý thêm thanh điệu.";
-            feedbackMsg.style.color = "var(--warning)";
+    recognition.onerror = (event) => {
+        console.error(event.error);
+        if (event.error === 'no-speech') {
+            statusDiv.innerText = "Không nghe thấy gì, hãy thử lại!";
         } else {
-            scoreBorder.style.borderColor = "var(--danger)";
-            feedbackMsg.innerText = "Chưa chính xác lắm. Hãy nghe lại mẫu nhé!";
-            feedbackMsg.style.color = "var(--danger)";
+            statusDiv.innerText = "Lỗi nhận diện hoặc chưa cấp quyền Mic.";
+        }
+        stopRecordingState();
+    };
+
+    recognition.onend = () => {
+        stopRecordingState();
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.trim();
+        calculateScore(transcript); // Tự động chấm điểm khi nói xong
+    };
+} else {
+    alert("Trình duyệt không hỗ trợ nhận diện giọng nói miễn phí. Hãy dùng Google Chrome hoặc Edge nhé!");
+}
+
+function stopRecordingState() {
+    micIcon.className = "fas fa-microphone";
+    recordBtn.classList.remove('recording');
+    isRecording = false;
+}
+
+// 3. Logic nút bấm Micro
+recordBtn.addEventListener('click', () => {
+    if (!recognition) return;
+    if (isRecording) {
+        recognition.stop();
+    } else {
+        recognition.start();
+    }
+});
+
+// 4. Đổi câu ngẫu nhiên (Giữ nguyên logic cũ)
+document.getElementById('nextBtn').addEventListener('click', () => {
+    let nextSentence;
+    do {
+        nextSentence = sentenceBank[Math.floor(Math.random() * sentenceBank.length)];
+    } while (nextSentence.zh === currentSentence.zh && sentenceBank.length > 1);
+    
+    currentSentence = nextSentence;
+    document.getElementById('targetText').innerText = currentSentence.zh;
+    document.getElementById('targetPinyin').innerText = currentSentence.py;
+    document.getElementById('targetTranslation').innerText = currentSentence.vi;
+    resultBox.style.display = "none";
+    statusDiv.innerText = "Nhấn micro để bắt đầu nói";
+});
+
+// 5. Phát âm mẫu bằng loa trình duyệt (Giữ nguyên logic cũ)
+document.getElementById('speakBtn').addEventListener('click', () => {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(currentSentence.zh);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.8;
+        window.speechSynthesis.speak(utterance);
+    } else {
+        alert("Trình duyệt của bạn không hỗ trợ phát âm mẫu.");
+    }
+});
+
+// 6. Hàm tự động chấm điểm % dựa trên chuỗi ký tự nhận được
+function calculateScore(transcript) {
+    statusDiv.innerText = "Hoàn thành!";
+    resultBox.style.display = "block";
+    recognizedText.innerText = transcript;
+
+    // Loại bỏ dấu câu để so sánh ký tự chuẩn hơn
+    const cleanTarget = currentSentence.zh.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！]/g,"");
+    const cleanTranscript = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！]/g,"");
+
+    let matchCount = 0;
+    for (let char of cleanTarget) {
+        if (cleanTranscript.includes(char)) {
+            matchCount++;
         }
     }
+
+    const score = Math.round((matchCount / cleanTarget.length) * 100);
+    scorePercent.innerText = `${score}%`;
+
+    // Thay đổi màu sắc vòng tròn và thông báo dựa trên số điểm
+    if(score >= 80) {
+        scoreBorder.style.borderColor = "var(--success)";
+        feedbackMsg.innerText = "Tuyệt vời! Phát âm rất chuẩn.";
+        feedbackMsg.style.color = "var(--success)";
+    } else if(score >= 50) {
+        scoreBorder.style.borderColor = "var(--warning)";
+        feedbackMsg.innerText = "Khá tốt! Cần chú ý thêm thanh điệu.";
+        feedbackMsg.style.color = "var(--warning)";
+    } else {
+        scoreBorder.style.borderColor = "var(--danger)";
+        feedbackMsg.innerText = "Chưa chính xác lắm. Hãy nghe lại mẫu nhé!";
+        feedbackMsg.style.color = "var(--danger)";
+    }
+}
 </script>
 
 </body>
