@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chấm Điểm Phát Âm Tiếng Trung</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        .chinese-text {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .pinyin {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #2980b9; }
+        button:disabled { background-color: #bdc3c7; }
+        .recording { background-color: #e74c3c !important; }
+        #status { margin-top: 20px; font-weight: bold; color: #555; }
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #fcfcfc;
+            border: 1px solid #eee;
+            display: none;
+        }
+        .score { font-size: 24px; font-weight: bold; color: #27ae60; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Phát âm câu sau:</h2>
+    <div class="chinese-text" id="targetText">你好</div>
+    <div class="pinyin">Nǐ hǎo</div>
+
+    <button id="recordBtn">Bắt đầu nói</button>
+    <div id="status">Sẵn sàng</div>
+
+    <div id="result">
+        <p>Bạn đã nói: <strong id="recognizedText" style="color:#2c3e50;">-</strong></p>
+        <p>Điểm số chính xác: <span class="score" id="scorePercent">0%</span></p>
+    </div>
+</div>
+
+<script>
+    // THAY API KEY CỦA BẠN VÀO ĐÂY
+    const GOOGLE_API_KEY = "YOUR_GOOGLE_CLOUD_API_KEY"; 
+    
+    const targetText = document.getElementById('targetText').innerText.trim();
+    const recordBtn = document.getElementById('recordBtn');
+    const statusDiv = document.getElementById('status');
+    const resultDiv = document.getElementById('result');
+    const recognizedTextAudio = document.getElementById('recognizedText');
+    const scorePercent = document.getElementById('scorePercent');
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let audioContext;
+
+    recordBtn.addEventListener('click', async () => {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+            return;
+        }
+
+        audioChunks = [];
+        statusDiv.innerText = "Đang nghe... Hãy nói đi!";
+        recordBtn.innerText = "Dừng & Chấm điểm";
+        recordBtn.classList.add('recording');
+
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        // Google Speech-to-Text hoạt động tốt nhất với mẫu AudioContext chuẩn
+        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+        
+        mediaRecorder.onstop = async () => {
+            recordBtn.innerText = "Bắt đầu nói";
+            recordBtn.classList.remove('recording');
+            statusDiv.innerText = "Sử lý âm thanh...";
+
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            
+            // Chuyển đổi audio sang định dạng Base64
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            reader.onloadend = async () => {
+                const base64Audio = reader.result.split(',')[1];
+                sendToGoogleSpeech(base64Audio);
+            };
+        };
+
+        mediaRecorder.start();
+    });
+
+    async function sendToGoogleSpeech(base64Audio) {
+        statusDiv.innerText = "Đang chấm điểm qua Google API...";
+        
+        const url = `https://speech.googleapis.com/v1/speech:recognize?key=${GOOGLE_API_KEY}`;
+        
+        const requestBody = {
+            config: {
+                encoding: "WEBM_OPUS", // Định dạng mặc định của MediaRecorder trên Chrome/Firefox
+                sampleRateHertz: 16000,
+                languageCode: "cmn-Hans-CN", // Tiếng Trung Phổ Thông (Giản thể)
+                enableAutomaticPunctuation: false
+            },
+            audio: {
+                content: base64Audio
+            }
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                body: JSON.stringify(requestBody),
+                headers: { "Content-Type": "application/json" }
+            });
+
+            const data = await response.json();
+            
+            if (data.results && data.results.length > 0) {
+                const transcript = data.results[0].alternatives[0].transcript.trim();
+                calculateScore(transcript);
+            } else {
+                statusDiv.innerText = "Không nhận diện được giọng nói. Thử lại nhé!";
+            }
+        } catch (error) {
+            console.error("Lỗi API:", error);
+            statusDiv.innerText = "Có lỗi xảy ra khi kết nối API.";
+        }
+    }
+
+    function calculateScore(transcript) {
+        statusDiv.innerText = "Hoàn thành!";
+        resultDiv.style.display = "block";
+        recognizedTextAudio.innerText = transcript;
+
+        // Thuật toán so sánh chuỗi đơn giản (Chấm điểm theo ký tự đúng)
+        let matchCount = 0;
+        const cleanTarget = targetText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+        const cleanTranscript = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+
+        for (let char of cleanTarget) {
+            if (cleanTranscript.includes(char)) {
+                matchCount++;
+            }
+        }
+
+        const score = Math.round((matchCount / cleanTarget.length) * 100);
+        scorePercent.innerText = `${score}%`;
+        
+        if(score >= 80) scorePercent.style.color = '#27ae60';
+        else if(score >= 50) scorePercent.style.color = '#f39c12';
+        else scorePercent.style.color = '#e74c3c';
+    }
+</script>
+
+</body>
+</html>
