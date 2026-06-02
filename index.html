@@ -13,6 +13,7 @@
             --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             --success: #2ecc71;
             --warning: #f1c40f;
+            --orange: #e67e22;
             --danger: #e74c3c;
             --card-shadow: 0 20px 40px rgba(0,0,0,0.08);
         }
@@ -38,7 +39,6 @@
             transition: background 0.5s ease, filter 0.3s ease;
         }
 
-        /* KHUNG GIAO DIỆN CHÍNH (GIỮ NGUYÊN ĐỐI XỨNG TRUNG TÂM) */
         .container {
             background: white;
             width: 100%;
@@ -164,9 +164,7 @@
             align-items: center;
         }
 
-        .btn-mic:hover {
-            transform: scale(1.08);
-        }
+        .btn-mic:hover { transform: scale(1.08); }
 
         .btn-mic.recording {
             background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
@@ -242,7 +240,7 @@
             border-left: 5px solid #cbd5e0;
         }
 
-        /* 🌟 THÔNG TIN TÁC GIẢ: Đặt cố định góc phải màn hình, không phá dáng bài */
+        /* 🌟 THÔNG TIN TÁC GIẢ */
         .author-tag {
             position: fixed;
             bottom: 25px;
@@ -266,14 +264,9 @@
         .author-tag:hover {
             transform: scale(1.1) translateY(-3px);
             box-shadow: 0 12px 20px rgba(30, 60, 114, 0.3);
-            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
         }
 
-        .author-tag:active {
-            transform: scale(0.95);
-        }
-
-        /* HIỆU ỨNG CHỮ CỔ VŨ BỒNG BỀNH SẢNH CHỜ */
+        /* CHỮ CỔ VŨ BỒNG BỀNH */
         .cheer-bubble {
             position: absolute;
             bottom: -60px;
@@ -291,9 +284,7 @@
             white-space: nowrap;
         }
 
-        body.is-speaking .cheer-bubble {
-            opacity: 0 !important;
-        }
+        body.is-speaking .cheer-bubble { opacity: 0 !important; }
 
         @keyframes floatUp {
             0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
@@ -302,7 +293,7 @@
             100% { transform: translateY(-115vh) translateX(var(--drift)) rotate(var(--rot)); opacity: 0; }
         }
 
-        /* PHẦN ĐỂ CHỨA CÁC CÁNH HOA / TUYẾT RƠI / SẤM CHỚP ĐẶC BIỆT */
+        /* HẠT ĐỒNG LOẠT RƠI (EASTER EGG) */
         .fx-particle {
             position: fixed;
             top: -50px;
@@ -318,50 +309,48 @@
             100% { transform: translateY(105vh) rotate(var(--r)) translateX(var(--x)); opacity: 0; }
         }
 
-        /* HIỆU ỨNG TIA SÁNG LIGHT RAYS DIỆU NHẸ */
+        /* HIỆU ỨNG CHẠM CHUỘT / SCREEN CLICK STAR */
+        .click-star {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 20px;
+            animation: starBurst 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes starBurst {
+            0% { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; }
+            100% { transform: translate(calc(-50% + var(--mx)), calc(-50% + var(--my))) scale(1.5) rotate(var(--rd)); opacity: 0; }
+        }
+
+        /* MÔI TRƯỜNG CHI TIẾT */
         .light-rays {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle at 50% -20%, rgba(255,255,255,0.4) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 2;
-            opacity: 0;
-            transition: opacity 1s ease;
-            mix-blend-mode: overlay;
+            pointer-events: none; z-index: 2; opacity: 0; transition: opacity 1s ease; mix-blend-mode: overlay;
         }
 
-        /* LỚP BĂNG ĐÓNG KHUNG CÁC GÓC MÀN HÌNH */
         .frost-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 5;
+            pointer-events: none; z-index: 5;
             box-shadow: inset 0 0 80px rgba(174, 219, 245, 0.6);
             border: 20px solid rgba(230, 245, 255, 0.3);
-            filter: blur(8px);
-            opacity: 0;
-            transition: opacity 1s ease;
+            filter: blur(8px); opacity: 0; transition: opacity 1s ease;
         }
 
-        /* MÂY ĐEN KÉO ĐẾN */
         .dark-clouds {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(20, 24, 35, 0.85);
-            pointer-events: none;
-            z-index: 4;
-            opacity: 0;
-            transition: opacity 1.5s ease;
+            background: rgba(20, 24, 35, 0.88);
+            pointer-events: none; z-index: 4; opacity: 0; transition: opacity 1.5s ease;
         }
 
-        /* SẤM CHỚP GIẬT KHỦNG KHIẾP */
         .lightning-flash {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #fff;
-            pointer-events: none;
-            z-index: 100;
-            opacity: 0;
+            background: #fff; pointer-events: none; z-index: 100; opacity: 0;
         }
 
         @keyframes flashAnim {
@@ -371,25 +360,22 @@
             50% { opacity: 0.8; }
         }
 
-        /* HIỆU ỨNG MÀN HÌNH TỐI THUI KHI BÙNG NỔ */
+        /* BOM NUKE & BLACKOUT KHÔI PHỤC */
         .blackout {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000;
-            pointer-events: none;
-            z-index: 99999;
-            opacity: 0;
-            transition: opacity 0.2s ease;
+            background: #000; pointer-events: none; z-index: 99999;
+            opacity: 0; transition: opacity 0.2s ease;
         }
 
         .nuke-flash {
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle, #fff 0%, #ff4500 50%, transparent 100%);
-            pointer-events: none;
-            z-index: 99998;
-            opacity: 0;
-            transform: scale(0);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 100vmax; height: 100vmax;
+            background: radial-gradient(circle, #fff 0%, #ff4500 40%, #764ba2 70%, transparent 100%);
+            border-radius: 50%;
+            pointer-events: none; z-index: 99998; opacity: 0;
         }
     </style>
 </head>
@@ -432,7 +418,7 @@
             <div class="result-header">
                 <div style="text-align: left;">
                     <div style="font-size: 12px; font-weight: 700; color: #a0aec0; text-transform: uppercase;">Đánh giá</div>
-                    <div id="feedbackMsg" style="font-size: 18px; font-weight: 700; color: #2d3748; margin-top: 2px;">Đang phân tích...</div>
+                    <div id="feedbackMsg" style="font-size: 17px; font-weight: 700; color: #2d3748; margin-top: 2px;">Đang phân tích...</div>
                 </div>
                 <div class="score-badge" id="scoreBadge">0%</div>
             </div>
@@ -469,11 +455,12 @@
         let isRecording = false;
         let autoNextTimeout = null;
 
-        // Quản lý trạng thái Combo Easter Egg tác giả
+        // Quản lý Easter Egg Tác Giả
         let authorClicks = 0;
         let fxInterval = null;
         let lightningInterval = null;
         let resetClickTimeout = null;
+        let isNukeExploding = false; // Chặn bấm đè khi đang nổ bom
 
         const recordBtn = document.getElementById('recordBtn');
         const micIcon = document.getElementById('micIcon');
@@ -484,7 +471,7 @@
         const feedbackMsg = document.getElementById('feedbackMsg');
         const dictCard = document.getElementById('dictCard');
 
-        // Sinh chữ bồng bềnh nền sảnh chờ
+        // Sinh bong bóng chữ sảnh chờ
         setInterval(() => { if (!isRecording) createCheerBubble(); }, 1500);
 
         function createCheerBubble() {
@@ -501,75 +488,99 @@
             setTimeout(() => bubble.remove(), duration * 1000);
         }
 
-        // 🌟 SIÊU ENGINE EASTER EGG KHI BẤM VÀO TÊN TÁC GIẢ
+        // EFFECT CHẠM/CLICK MÀN HÌNH RA NGÔI SAO LẤP LÁNH
+        window.addEventListener('click', (e) => {
+            // Không kích hoạt ngôi sao lớn nếu bấm vào nút mic hoặc tag tác giả
+            if(e.target.closest('#authorTag') || e.target.closest('#recordBtn')) return;
+            
+            const starCount = 6; // Số lượng ngôi sao bung ra mỗi lượt bấm
+            const starsPool = ['✨', '⭐', '💫', '🌟'];
+            
+            for(let i=0; i<starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'click-star';
+                star.innerText = starsPool[Math.floor(Math.random() * starsPool.length)];
+                star.style.left = `${e.clientX}px`;
+                star.style.top = `${e.clientY}px`;
+                
+                // Hướng bay ngẫu nhiên vòng tròn
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 40 + Math.random() * 70;
+                const mx = Math.cos(angle) * distance;
+                const my = Math.sin(angle) * distance;
+                
+                star.style.setProperty('--mx', `${mx}px`);
+                star.style.setProperty('--my', `${my}px`);
+                star.style.setProperty('--rd', `${Math.random() * 360}deg`);
+                
+                document.body.appendChild(star);
+                setTimeout(() => star.remove(), 800);
+            }
+        });
+
+        // 🌟 ENGINE EASTER EGG TÁC GIẢ CHUẨN CẤP ĐỘ
         document.getElementById('authorTag').addEventListener('click', (e) => {
             e.stopPropagation();
+            if (isNukeExploding) return; // Nếu đang trong trạng thái bom nổ thì tạm khóa click
+
             authorClicks++;
 
-            // Mỗi lần bấm thêm, tăng thời gian duy trì hiệu ứng một chút (mặc định gốc khoảng 7s)
-            let baseDuration = 7000 + (authorClicks * 400); 
-
-            // Xoá chu kỳ dọn dẹp cũ nếu bấm dồn dập liên tục
-            if(resetClickTimeout) clearTimeout(resetClickTimeout);
+            // Reset dọn dẹp các hiệu ứng cũ để tránh đè chồng lấn
             clearInterval(fxInterval);
             clearInterval(lightningInterval);
-
-            // Tắt nhanh các trạng thái môi trường cũ để cấu hình lại theo bậc Click mới
+            if(resetClickTimeout) clearTimeout(resetClickTimeout);
+            
             document.getElementById('lightRays').style.opacity = "0";
             document.getElementById('frostOverlay').style.opacity = "0";
             document.getElementById('darkClouds').style.opacity = "0";
             document.body.style.filter = "none";
 
-            // BẬC CẤP ĐỘ HIỆU ỨNG DỰA TRÊN SỐ LẦN CLICK
+            // KIỂM TRA BẬC CẤP ĐỘ CLICK
             if (authorClicks >= 12) {
-                // LEVEL 4: QUẢ BOM NỔ TUNG MÀN HÌNH TỐI THUI 3 GIÂY
                 triggerNukeBlast();
                 return;
             } 
             else if (authorClicks >= 7) {
-                // LEVEL 3: MÂY ĐEN, SẤM CHỚP, PHÓNG ĐIỆN KHỦNG KHIẾP
+                // LEVEL 3: MÂY ĐEN, SẤM CHỚP
                 document.getElementById('darkClouds').style.opacity = "1";
-                document.body.style.filter = "contrast(1.2) brightness(0.8)";
+                document.body.style.filter = "contrast(1.2) brightness(0.75)";
                 
-                // Tạo chớp giật liên hồi ngẫu nhiên
                 lightningInterval = setInterval(() => {
                     const flash = document.getElementById('lightningFlash');
-                    flash.style.animation = "flashAnim 0.4s ease-out";
-                    setTimeout(() => { flash.style.animation = ""; }, 400);
-                }, 1200);
+                    flash.style.animation = "flashAnim 0.3s ease-out";
+                    setTimeout(() => { flash.style.animation = ""; }, 300);
+                }, 1000);
 
-                // Đổ sấm chớp hạt điện tích rơi xuống
                 fxInterval = setInterval(() => {
-                    createParticle(['⚡', '⚡', '✨', '🌩️'][Math.floor(Math.random() * 4)], 15);
-                }, 150);
+                    createParticle(['⚡', '🌩️', '✨'][Math.floor(Math.random() * 3)], 12);
+                }, 1200 / 10);
             } 
             else if (authorClicks >= 3) {
-                // LEVEL 2: BÃO TUYẾT RƠI DÀY + ĐÓNG BĂNG 4 GÓC MÀN HÌNH
+                // LEVEL 2: BÃO TUYẾT & PHỦ BĂNG 4 GÓC
                 document.getElementById('frostOverlay').style.opacity = "1";
-                document.body.style.filter = "saturate(0.8) hue-rotate(10deg)";
+                document.body.style.filter = "saturate(0.7) hue-rotate(15deg)";
                 fxInterval = setInterval(() => {
-                    createParticle(['❄️', '❅', '❆', '✧'][Math.floor(Math.random() * 4)], 8);
-                }, 80);
+                    createParticle(['❄️', '❅', '❆', '✧'][Math.floor(Math.random() * 4)], 6);
+                }, 70);
             } 
             else {
-                // LEVEL 1: RƠI HOA ĐÀO, HOA MAI, HOA NHÀI + LIGHT RAYS DỊU DÀNG
+                // LEVEL 1: HOA ĐÀO, MAI, NHÀI RƠI
                 document.getElementById('lightRays').style.opacity = "1";
                 fxInterval = setInterval(() => {
-                    // Ngẫu nhiên chọn cánh hoa Đào (Hồng), Mai (Vàng), Nhài (Trắng)
                     const flowers = [
-                        {icon: '🌸', color: '#ffb7c5'}, // Đào
-                        {icon: '🌼', color: '#ffdb58'}, // Mai
-                        {icon: '💮', color: '#fff0f5'}  // Nhài
+                        {icon: '🌸', color: '#ffb7c5'},
+                        {icon: '🌼', color: '#ffdb58'},
+                        {icon: '💮', color: '#fff0f5'}
                     ];
                     const selected = flowers[Math.floor(Math.random() * flowers.length)];
-                    createParticle(selected.icon, 5, selected.color);
-                }, 180);
+                    createParticle(selected.icon, 4, selected.color);
+                }, 150);
             }
 
-            // Hết thời gian tích luỹ -> Tự động xoá toàn bộ hiệu ứng đưa máy về bình thường
+            // Thời gian duy trì hiệu ứng thường (7 giây) rồi tự dọn dẹp
             resetClickTimeout = setTimeout(() => {
                 cleanAllEffects();
-            }, baseDuration);
+            }, 7000);
         });
 
         function createParticle(symbol, speedBase, customColor = '') {
@@ -577,37 +588,42 @@
             p.className = 'fx-particle';
             p.innerText = symbol;
             p.style.left = `${Math.random() * 100}vw`;
-            p.style.fontSize = `${16 + Math.random() * 20}px`;
+            p.style.fontSize = `${18 + Math.random() * 18}px`;
             if(customColor) p.style.color = customColor;
 
             const duration = (speedBase / 2 + Math.random() * (speedBase / 2)).toFixed(2);
             p.style.setProperty('--d', `${duration}s`);
             p.style.setProperty('--r', `${Math.random() * 360 - 180}deg`);
-            p.style.setProperty('--x', `${Math.random() * 100 - 50}px`);
+            p.style.setProperty('--x', `${Math.random() * 120 - 60}px`);
 
             document.body.appendChild(p);
             setTimeout(() => { p.remove(); }, duration * 1000);
         }
 
+        // HÀM KÍCH HOẠT BOM NHIỆT HẠCH & TỐI ĐEN MÀN HÌNH ĐÚNG LÝ TƯỞNG
         function triggerNukeBlast() {
+            isNukeExploding = true;
             const nuke = document.getElementById('nukeFlash');
             const blackout = document.getElementById('blackout');
             
+            // Bung tỏa vụ nổ sáng rực
             nuke.style.opacity = "1";
-            nuke.style.transform = "scale(4)";
-            nuke.style.transition = "all 0.4s ease-out";
+            nuke.style.transform = "translate(-50%, -50%) scale(3)";
+            nuke.style.transition = "all 0.5s cubic-bezier(0.1, 0.8, 0.3, 1)";
 
             setTimeout(() => {
+                // Sập tối đen màn hình hoàn toàn
                 blackout.style.opacity = "1";
                 nuke.style.opacity = "0";
-                nuke.style.transform = "scale(0)";
+                nuke.style.transform = "translate(-50%, -50%) scale(0)";
                 nuke.style.transition = "none";
-            }, 400);
+            }, 500);
 
-            // Màn hình đen tối thui duy trì trong ĐÚNG 3 GIÂY rồi khôi phục sạch sẽ
+            // Duy trì màn hình đen kịt trong ĐÚNG 3 GIÂY rồi khôi phục sạch sẽ
             setTimeout(() => {
                 cleanAllEffects();
-            }, 3400);
+                isNukeExploding = false;
+            }, 3500); // 500ms nổ + 3000ms tối thui
         }
 
         function cleanAllEffects() {
@@ -625,12 +641,12 @@
             document.body.style.filter = "none";
         }
 
-        // Web Speech API Nhận Diện Giọng Nói Real-Time Chuẩn Chỉnh
+        // WEB SPEECH API NHẬN DIỆN GIỌNG NÓI CHUẨN ENGINE
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
-            recognition.lang = 'zh-CN';
-            recognition.interimResults = true; 
+            recognition.lang = 'zh-CN';             // Nhận diện tiếng Trung phổ thông
+            recognition.interimResults = true;       // Lắng nghe trực tiếp theo thời gian thực
             recognition.maxAlternatives = 1;
 
             recognition.onstart = () => {
@@ -652,10 +668,13 @@
             };
 
             recognition.onerror = (event) => {
-                console.error(event.error);
+                console.error("Speech Error: ", event.error);
                 if(event.error === 'no-speech') {
                     statusText.innerText = "Không nghe thấy tiếng, bấm thử lại nha!";
                     resultBox.style.display = "none";
+                } else if(event.error === 'not-allowed') {
+                    statusText.innerText = "Lỗi: Bạn cần cấp quyền Mic cho trình duyệt!";
+                    statusText.style.color = "var(--danger)";
                 }
                 stopRecordingState();
             };
@@ -674,6 +693,9 @@
                     calculateScore(currentText.trim(), !finalTranscript);
                 }
             };
+        } else {
+            statusText.innerText = "Trình duyệt không hỗ trợ nhận diện giọng nói!";
+            statusText.style.color = "var(--danger)";
         }
 
         function stopRecordingState() {
@@ -681,15 +703,23 @@
             recordBtn.classList.remove('recording');
             isRecording = false;
             document.body.classList.remove('is-speaking');
-            statusText.innerText = "Bấm vào Mic để bắt đầu nói";
-            statusText.style.color = "#a0aec0";
+            if(statusText.style.color !== "var(--danger)") {
+                statusText.innerText = "Bấm vào Mic để bắt đầu nói";
+                statusText.style.color = "#a0aec0";
+            }
         }
 
         recordBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (!recognition) return;
             if (isRecording) recognition.stop();
-            else recognition.start();
+            else {
+                try {
+                    recognition.start();
+                } catch(err) {
+                    console.log("Recognition error setup: ", err);
+                }
+            }
         });
 
         function changeToNextSentence() {
@@ -722,11 +752,12 @@
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(currentSentence.zh);
                 utterance.lang = 'zh-CN';
-                utterance.rate = 0.75;
+                utterance.rate = 0.8;
                 window.speechSynthesis.speak(utterance);
             }
         });
 
+        // THUẬT TOÁN ĐO KHOẢNG CÁCH CHUỖI LEVENSHTEIN
         function getLevenshteinDistance(str1, str2) {
             const track = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
             for (let i = 0; i <= str1.length; i += 1) track[0][i] = i;
@@ -740,10 +771,13 @@
             return track[str2.length][str1.length];
         }
 
+        // TÍNH TOÁN ĐIỂM SỐ CHUẨN XÁC THEO CÁC MỐC 25% - 50% - 75% - 100%
         function calculateScore(transcript, isInterim) {
             recognizedText.innerText = transcript;
-            const cleanTarget = currentSentence.zh.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！\s]/g,"");
-            const cleanTranscript = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！\s]/g,"");
+            
+            // Xóa bỏ tất cả các dấu câu, ký tự đặc biệt tiếng Trung/Anh để so sánh ký tự thuần túy
+            const cleanTarget = currentSentence.zh.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！\s\?]/g,"");
+            const cleanTranscript = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！\s\?]/g,"");
 
             const distance = getLevenshteinDistance(cleanTarget, cleanTranscript);
             const maxLength = Math.max(cleanTarget.length, cleanTranscript.length);
@@ -752,21 +786,30 @@
             if (score < 0) score = 0;
             scoreBadge.innerText = `${score}%`;
 
-            if (score >= 80) {
+            // PHÂN CHIA FEEDBACK THEO % CHUẨN XÁC ĐỐI CHIẾU
+            if (score >= 90) {
+                // Mốc từ 90% - 100% (Xuất sắc)
                 scoreBadge.style.background = "var(--success)";
                 feedbackMsg.style.color = "var(--success)";
-                feedbackMsg.innerText = isInterim ? "Nghe chuẩn đấy, tiếp tục nào! 🔥" : "Quá đỉnh! Chuẩn giọng rồi. Tự chuyển câu sau 3s...";
+                feedbackMsg.innerText = isInterim ? "Nghe chuẩn xác quá đi! 🔥" : "Quá đỉnh (100%)! Chuẩn giọng rồi. Tự chuyển câu sau 3s...";
                 if (!isInterim) {
                     autoNextTimeout = setTimeout(() => { changeToNextSentence(); }, 3000);
                 }
+            } else if (score >= 75) {
+                // Mốc từ 75% - 89% (Khá tốt)
+                scoreBadge.style.background = "var(--pinyin-color)";
+                feedbackMsg.style.color = "var(--pinyin-color)";
+                feedbackMsg.innerText = isInterim ? "Độ chính xác rất tốt..." : "Khá chuẩn (75%)! Sai sót một chút, thử lại xíu là được nè.";
             } else if (score >= 50) {
+                // Mốc từ 50% - 74% (Trung bình)
                 scoreBadge.style.background = "var(--warning)";
-                feedbackMsg.style.color = "var(--warning)";
-                feedbackMsg.innerText = isInterim ? "Hanzii đang bắt được từ..." : "Tương đối giống! Thử phát âm lại hoặc chọn câu tiếp theo.";
+                feedbackMsg.style.color = "var(--orange)";
+                feedbackMsg.innerText = isInterim ? "Hanzii đang nghe thấy từ giống..." : "Tương đối (50%)! Phát âm rõ chữ và có ngữ điệu hơn nhé.";
             } else {
+                // Mốc dưới 50% (Yếu)
                 scoreBadge.style.background = "var(--danger)";
                 feedbackMsg.style.color = "var(--danger)";
-                feedbackMsg.innerText = isInterim ? "Đang nhận dạng âm thanh..." : "Chưa khớp rồi. Nghe mẫu kỹ lại xem sao nha!";
+                feedbackMsg.innerText = isInterim ? "Đang nhận dạng âm thanh..." : "Chưa khớp rồi (25%). Nghe mẫu kỹ và thử lại xem sao nha!";
             }
         }
     </script>
