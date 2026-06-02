@@ -331,15 +331,6 @@
             pointer-events: none; z-index: 2; opacity: 0; transition: opacity 1s ease; mix-blend-mode: overlay;
         }
 
-        .frost-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 5;
-            box-shadow: inset 0 0 80px rgba(174, 219, 245, 0.6);
-            border: 20px solid rgba(230, 245, 255, 0.3);
-            filter: blur(8px); opacity: 0; transition: opacity 1s ease;
-        }
-
         .dark-clouds {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -382,7 +373,6 @@
 <body>
 
     <div class="light-rays" id="lightRays"></div>
-    <div class="frost-overlay" id="frostOverlay"></div>
     <div class="dark-clouds" id="darkClouds"></div>
     <div class="lightning-flash" id="lightningFlash"></div>
     <div class="nuke-flash" id="nukeFlash"></div>
@@ -441,7 +431,7 @@
             { zh: "我爱你", py: "Wǒ ài nǐ", vi: "Tôi yêu bạn" },
             { zh: "今天天气很好", py: "Jīntiān tiānqì hěn hǎo", vi: "Hôm nay thời tiết rất đẹp" },
             { zh: "你想吃什么？", py: "Nǐ xiǎng chī shénme?", vi: "Bạn muốn ăn gì?" },
-            { zh: "汉语不太难", py: "Hànyǔ bú tài nán", vi: "Tiếng Trung không khó lắm" }
+            { zh: "汉语不太難", py: "Hànyǔ bú tài nán", vi: "Tiếng Trung không khó lắm" }
         ];
 
         const cheerTexts = [
@@ -460,7 +450,7 @@
         let fxInterval = null;
         let lightningInterval = null;
         let resetClickTimeout = null;
-        let isNukeExploding = false; // Chặn bấm đè khi đang nổ bom
+        let isNukeExploding = false;
 
         const recordBtn = document.getElementById('recordBtn');
         const micIcon = document.getElementById('micIcon');
@@ -490,10 +480,9 @@
 
         // EFFECT CHẠM/CLICK MÀN HÌNH RA NGÔI SAO LẤP LÁNH
         window.addEventListener('click', (e) => {
-            // Không kích hoạt ngôi sao lớn nếu bấm vào nút mic hoặc tag tác giả
             if(e.target.closest('#authorTag') || e.target.closest('#recordBtn')) return;
             
-            const starCount = 6; // Số lượng ngôi sao bung ra mỗi lượt bấm
+            const starCount = 6;
             const starsPool = ['✨', '⭐', '💫', '🌟'];
             
             for(let i=0; i<starCount; i++) {
@@ -503,7 +492,6 @@
                 star.style.left = `${e.clientX}px`;
                 star.style.top = `${e.clientY}px`;
                 
-                // Hướng bay ngẫu nhiên vòng tròn
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 40 + Math.random() * 70;
                 const mx = Math.cos(angle) * distance;
@@ -518,30 +506,28 @@
             }
         });
 
-        // 🌟 ENGINE EASTER EGG TÁC GIẢ CHUẨN CẤP ĐỘ
+        // 🌟 ENGINE EASTER EGG TÁC GIẢ ĐÃ LỌA BỎ TUYẾT RƠI 🌟
         document.getElementById('authorTag').addEventListener('click', (e) => {
             e.stopPropagation();
-            if (isNukeExploding) return; // Nếu đang trong trạng thái bom nổ thì tạm khóa click
+            if (isNukeExploding) return;
 
             authorClicks++;
 
-            // Reset dọn dẹp các hiệu ứng cũ để tránh đè chồng lấn
+            // Dọn sạch chu kỳ cũ
             clearInterval(fxInterval);
             clearInterval(lightningInterval);
             if(resetClickTimeout) clearTimeout(resetClickTimeout);
             
             document.getElementById('lightRays').style.opacity = "0";
-            document.getElementById('frostOverlay').style.opacity = "0";
             document.getElementById('darkClouds').style.opacity = "0";
             document.body.style.filter = "none";
 
-            // KIỂM TRA BẬC CẤP ĐỘ CLICK
             if (authorClicks >= 12) {
                 triggerNukeBlast();
                 return;
             } 
-            else if (authorClicks >= 7) {
-                // LEVEL 3: MÂY ĐEN, SẤM CHỚP
+            else if (authorClicks >= 6) {
+                // LEVEL 2: MÂY ĐEN, SẤM CHỚP (KHI CLICK TỪ 6 ĐẾN 11 LẦN)
                 document.getElementById('darkClouds').style.opacity = "1";
                 document.body.style.filter = "contrast(1.2) brightness(0.75)";
                 
@@ -553,31 +539,23 @@
 
                 fxInterval = setInterval(() => {
                     createParticle(['⚡', '🌩️', '✨'][Math.floor(Math.random() * 3)], 12);
-                }, 1200 / 10);
-            } 
-            else if (authorClicks >= 3) {
-                // LEVEL 2: BÃO TUYẾT & PHỦ BĂNG 4 GÓC
-                document.getElementById('frostOverlay').style.opacity = "1";
-                document.body.style.filter = "saturate(0.7) hue-rotate(15deg)";
-                fxInterval = setInterval(() => {
-                    createParticle(['❄️', '❅', '❆', '✧'][Math.floor(Math.random() * 4)], 6);
-                }, 70);
+                }, 120);
             } 
             else {
-                // LEVEL 1: HOA ĐÀO, MAI, NHÀI RƠI
+                // LEVEL 1: HOA RƠI LÃNG MẠN (KHI CLICK TỪ 1 ĐẾN 5 LẦN)
                 document.getElementById('lightRays').style.opacity = "1";
                 fxInterval = setInterval(() => {
                     const flowers = [
-                        {icon: '🌸', color: '#ffb7c5'},
-                        {icon: '🌼', color: '#ffdb58'},
-                        {icon: '💮', color: '#fff0f5'}
+                        {icon: '🌸', color: '#ffb7c5'}, // Đào
+                        {icon: '🌼', color: '#ffdb58'}, // Mai
+                        {icon: '💮', color: '#fff0f5'}  // Nhài
                     ];
                     const selected = flowers[Math.floor(Math.random() * flowers.length)];
                     createParticle(selected.icon, 4, selected.color);
                 }, 150);
             }
 
-            // Thời gian duy trì hiệu ứng thường (7 giây) rồi tự dọn dẹp
+            // Tự dọn dẹp sau 7 giây nếu không click tiếp
             resetClickTimeout = setTimeout(() => {
                 cleanAllEffects();
             }, 7000);
@@ -600,30 +578,27 @@
             setTimeout(() => { p.remove(); }, duration * 1000);
         }
 
-        // HÀM KÍCH HOẠT BOM NHIỆT HẠCH & TỐI ĐEN MÀN HÌNH ĐÚNG LÝ TƯỞNG
         function triggerNukeBlast() {
             isNukeExploding = true;
             const nuke = document.getElementById('nukeFlash');
             const blackout = document.getElementById('blackout');
             
-            // Bung tỏa vụ nổ sáng rực
             nuke.style.opacity = "1";
             nuke.style.transform = "translate(-50%, -50%) scale(3)";
             nuke.style.transition = "all 0.5s cubic-bezier(0.1, 0.8, 0.3, 1)";
 
             setTimeout(() => {
-                // Sập tối đen màn hình hoàn toàn
                 blackout.style.opacity = "1";
                 nuke.style.opacity = "0";
                 nuke.style.transform = "translate(-50%, -50%) scale(0)";
                 nuke.style.transition = "none";
             }, 500);
 
-            // Duy trì màn hình đen kịt trong ĐÚNG 3 GIÂY rồi khôi phục sạch sẽ
+            // Tối thui đúng 3 giây rồi làm sạch
             setTimeout(() => {
                 cleanAllEffects();
                 isNukeExploding = false;
-            }, 3500); // 500ms nổ + 3000ms tối thui
+            }, 3500); 
         }
 
         function cleanAllEffects() {
@@ -633,7 +608,6 @@
             document.querySelectorAll('.fx-particle').forEach(el => el.remove());
             
             document.getElementById('lightRays').style.opacity = "0";
-            document.getElementById('frostOverlay').style.opacity = "0";
             document.getElementById('darkClouds').style.opacity = "0";
             document.getElementById('blackout').style.opacity = "0";
             document.getElementById('lightningFlash').style.opacity = "0";
@@ -641,12 +615,12 @@
             document.body.style.filter = "none";
         }
 
-        // WEB SPEECH API NHẬN DIỆN GIỌNG NÓI CHUẨN ENGINE
+        // WEB SPEECH API ENGINE
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
-            recognition.lang = 'zh-CN';             // Nhận diện tiếng Trung phổ thông
-            recognition.interimResults = true;       // Lắng nghe trực tiếp theo thời gian thực
+            recognition.lang = 'zh-CN';             
+            recognition.interimResults = true;       
             recognition.maxAlternatives = 1;
 
             recognition.onstart = () => {
@@ -757,7 +731,6 @@
             }
         });
 
-        // THUẬT TOÁN ĐO KHOẢNG CÁCH CHUỖI LEVENSHTEIN
         function getLevenshteinDistance(str1, str2) {
             const track = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
             for (let i = 0; i <= str1.length; i += 1) track[0][i] = i;
@@ -771,11 +744,9 @@
             return track[str2.length][str1.length];
         }
 
-        // TÍNH TOÁN ĐIỂM SỐ CHUẨN XÁC THEO CÁC MỐC 25% - 50% - 75% - 100%
         function calculateScore(transcript, isInterim) {
             recognizedText.innerText = transcript;
             
-            // Xóa bỏ tất cả các dấu câu, ký tự đặc biệt tiếng Trung/Anh để so sánh ký tự thuần túy
             const cleanTarget = currentSentence.zh.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！\s\?]/g,"");
             const cleanTranscript = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?？。，！\s\?]/g,"");
 
@@ -786,9 +757,7 @@
             if (score < 0) score = 0;
             scoreBadge.innerText = `${score}%`;
 
-            // PHÂN CHIA FEEDBACK THEO % CHUẨN XÁC ĐỐI CHIẾU
             if (score >= 90) {
-                // Mốc từ 90% - 100% (Xuất sắc)
                 scoreBadge.style.background = "var(--success)";
                 feedbackMsg.style.color = "var(--success)";
                 feedbackMsg.innerText = isInterim ? "Nghe chuẩn xác quá đi! 🔥" : "Quá đỉnh (100%)! Chuẩn giọng rồi. Tự chuyển câu sau 3s...";
@@ -796,17 +765,14 @@
                     autoNextTimeout = setTimeout(() => { changeToNextSentence(); }, 3000);
                 }
             } else if (score >= 75) {
-                // Mốc từ 75% - 89% (Khá tốt)
                 scoreBadge.style.background = "var(--pinyin-color)";
                 feedbackMsg.style.color = "var(--pinyin-color)";
                 feedbackMsg.innerText = isInterim ? "Độ chính xác rất tốt..." : "Khá chuẩn (75%)! Sai sót một chút, thử lại xíu là được nè.";
             } else if (score >= 50) {
-                // Mốc từ 50% - 74% (Trung bình)
                 scoreBadge.style.background = "var(--warning)";
                 feedbackMsg.style.color = "var(--orange)";
                 feedbackMsg.innerText = isInterim ? "Hanzii đang nghe thấy từ giống..." : "Tương đối (50%)! Phát âm rõ chữ và có ngữ điệu hơn nhé.";
             } else {
-                // Mốc dưới 50% (Yếu)
                 scoreBadge.style.background = "var(--danger)";
                 feedbackMsg.style.color = "var(--danger)";
                 feedbackMsg.innerText = isInterim ? "Đang nhận dạng âm thanh..." : "Chưa khớp rồi (25%). Nghe mẫu kỹ và thử lại xem sao nha!";
